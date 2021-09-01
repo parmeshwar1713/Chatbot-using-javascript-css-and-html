@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Keyboard Input for chat-bubble</title>
+
+  <!-- for mobile screens -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- stylesheets are conveniently separated into components -->
+  <link rel="stylesheet" media="all" href="../component/styles/setup.css">
+  <link rel="stylesheet" media="all" href="../component/styles/says.css">
+  <link rel="stylesheet" media="all" href="../component/styles/reply.css">
+  <link rel="stylesheet" media="all" href="../component/styles/typing.css">
+  <link rel="stylesheet" media="all" href="../component/styles/input.css">
+  <style>
+    .bubble-container .input-wrap textarea {
+      margin: 0;
+      width: calc(100% - 30px);
+    }
+
+
+    .chatBox {
+      display: none;
+      position: fixed;
+      right: 20px;
+      bottom: 110px;
+      max-width: 400px;
+      
+    }
+
+    .chatIcon {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+    }
+    .chatIcon img{
+      width: 90px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- container element for chat window -->
+  <div class="mainchatcontainer">
+    <div class="chatIcon">
+      <img src="../images/chat.gif" onclick="chatApplication();">
+    </div>
+    <div id="chat" class="chatBox">
+    </div>
+  </div>
+  <!-- import the JavaScript file -->
+  <script src="../component/Bubbles.js"></script>
+  <script src="jquery3.2.js"></script>
+  <script>
+    // initialize by constructing a named function...
+    // ...and add text processing plugin:
+    var chatWindow = new Bubbles(document.getElementById("chat"), "chatWindow", {
+      // the one that we care about is inputCallbackFn()
+      // this function returns an object with some data that we can process from user input
+      // and understand the context of it
+
+      // this is an example function that matches the text user typed to one of the answer bubbles
+      // this function does no natural language processing
+      // this is where you may want to connect this script to NLC backend.
+      inputCallbackFn: function (o) {
+        // add error conversation block & recall it if no answer matched
+        var miss = function () {
+          chatWindow.talk(
+            {
+              "i-dont-get-it": {
+                says: [
+                  "Sorry, I don't get it 😕. Pls repeat? Or you can just click below 👇"
+                ],
+                reply: o.convo[o.standingAnswer].reply
+              }
+            },
+            "i-dont-get-it"
+          )
+        }
+
+        // do this if answer found
+        var match = function (key) {
+          setTimeout(function () {
+            chatWindow.talk(convo, key) // restart current convo from point found in the answer
+          }, 600)
+        }
+
+        // sanitize text for search function
+        var strip = function (text) {
+          return text.toLowerCase().replace(/[\s.,\/#!$%\^&\*;:{}=\-_'"`~()]/g, "")
+        }
+
+        // search function
+        var found = false
+        o.convo[o.standingAnswer].reply.forEach(function (e, i) {
+          strip(e.question).includes(strip(o.input)) && o.input.length > 0
+            ? (found = e.answer)
+            : found ? null : (found = false)
+        })
+        found ? match(found) : miss()
+      }
+    }) // done setting up chat-bubble
+
+    // conversation object defined separately, but just the same as in the
+    // "Basic chat-bubble Example" (1-basics.html)
+    var convo = {
+      ice: {
+        says: ["Hi I'm Dev","May i Help You?"],
+        reply: [
+          {
+            question: "Yes",
+            answer: "OK"
+          },
+          {
+            question: "No",
+            answer: "Thank You See You Again"
+          },
+          {
+            question: "Other",
+            answer: "Other"
+          }
+        ]
+      },
+      
+      OK: {
+        says: ["This is the result which you want"],
+        reply: [
+          {
+            question: "ABC",
+            answer: "ABC"
+          },
+          {
+            question: "FMS",
+            answer: "FMS"
+          },
+          {
+            question: "VED",
+            answer: "VED"
+          },
+          
+          {
+            question: "XYZ",
+            answer: "XYZ"
+          },
+       
+          {
+            question: "HML",
+            answer: "HML"
+          },
+      
+          {
+            question: "SDE",
+            answer: "SDE"
+          },
+         
+          {
+            question: "ISIC",
+            answer: "ISIC"
+          },
+          {
+            question: "UNSPC",
+            answer: "UNSPC"
+          },
+          {
+            question: "HSN",
+            answer: "HSN"
+          },
+          {
+            question: "SAC",
+            answer: "SAC"
+          },
+
+        ]
+      },
+      ABC: {
+        says: ["ABC analysis classifies the materials based on their consumption during a particular time period (usually YoY, five years and ten years etc)."],
+        reply: [
+          {
+            question: "ABC In Details",
+            answer: "ABCD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+     
+      FMS: {
+        says: ["FMS Analysis is based on the rate of issue or rate of usage of spare parts. This classification system categorizes the items based on how frequently the parts are issued and how frequently they are used."],
+        reply: [
+          {
+            question: "FMS In Details",
+            answer: "FMSD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      
+      VED: {
+        says: ["VED analysis classifies the materials according to their criticality and impact to the production process or other services i.e. how and to what extent the material M1 is going to effect the production if the material M1 is not available."],
+        reply: [
+          {
+            question: "VED In Details",
+            answer: "VEDD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      XYZ: {
+        says: ["XYZ analysis classifies the materials based on stock value accumulation. It is calculated by dividing an item's current stock value by the total stock value of the stores."],
+        reply: [
+          {
+            question: "XYZ In Details",
+            answer: "XYZD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      HML: {
+        says: ["HML analysis classifies the materials based on their unit prices. The main objective of this analysis is to minimize the inventory cost such as labor cost, material cost etc."],
+        reply: [
+          {
+            question: "HML In Details",
+            answer: "HMLD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      SDE: {
+        says: ["SDE analysis classifies inventory based on how freely available an item or scarce an item is, or the length of its lead time."],
+        reply: [
+          {
+            question: "SDE In Details",
+            answer: "SDED"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      ISIC: {
+        says: ["The International Standard Industrial classification of All Economic Activities is a United Nations industry classification system"],
+        reply: [
+          {
+            question: "ISIC In Details",
+            answer: "ISICD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      UNSPC: {
+        says: ["The United Nations Standard Products and Services code is a taxanomy of products and services for use in eCommerce."],
+        reply: [
+          {
+            question: "UNSPC In Details",
+            answer: "UNSPCD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      HSN: {
+        says: ["HSN is Harmonized system of Nomenclature.It is a multipurpose international product nomenclature developed by the World Customs ORganization(WCO)"],
+        reply: [
+          {
+            question: "HSN In Details",
+            answer: "HSND"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      SAC: {
+        says: ["SAC(Services and Acoounting Code)codes are based on the Harmonized System of Nomenclature which is an internationally recognized system of classifying and codifying all the products in the world.This system enables the complicance of GST based on the international standards.It will provide a common structure to the government for the proper collaboration of data related to sales and purchase and analyze the same."],
+        reply: [
+          {
+            question: "SAC In Details",
+            answer: "SACD"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      ABCD: {
+        says: ["Identifies the objective and the analysis criterion.Collect all the data about the inventory and calculate the consumption pr sale value.Arrange all the consumption values in the descending order.Create next column and start adding the cumulative total of consumption value.Assign the category based on the accumulated values as A,B and C"],
+        reply: [
+        {
+            question: "VED",
+            answer: "VED"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      FMSD : {
+        says: ["Classification is based on the patterns of issues from stores and is useful in controlling obsolescence.Date of issue,whichever is later,is taken to determine the number of months which have lapsed since the last transaction.Based on number of months categorize as F.M and S"],
+        reply: [
+        {
+            question: "XYZ",
+            answer: "XYZ"
+          },
+          {
+            question: "Go Back",
+            answer: "ice"
+          }
+        ]
+      },
+      VEDD: {
+        says: ["Identification of factors essential for VED Analysis.Calculate the sum of actual working hours.Finding out how many times the order was placed.Calculate the average working hours.Place the items into V,E and D categories."],
+        reply: [
+          {
+            question: "HML",
+            answer: "HML"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      XYZD: {
+        says: ["Identify the objective and the analysis criterion.Collect all the data about the inventory.Divide item's current stock value(cost per piece)with the total stock value(total cost).Arrange all the consumption values in descending order of values.Create next column and start adding the cumulative total of consumption value.Assign the category based on the accumulatedn value as X,Y and Z."],
+        reply: [
+          {
+            question: "HML",
+            answer: "HML"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      HMLD: {
+        says: ["Prepare the list of item,s and calculate their unit cost,annual demand and annual usage.Arrange items in the descending order of their unit cost.Calculate percentage of unit cost.The cut-off lines are then fixed by the organization for deciding three categories.Plot the graph on the basis of cumulative unit cost and then categories the inventory items"],
+        reply: [
+          {
+            question: "SDE",
+            answer: "SDE"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      SDED: {
+        says: ["Identify the objective and the analysis criterion.Collect all the data about the scarcity and availability of the items.Identify the lead time in week/days.Arrange the values in the descending order.Assign the category based on the lead time as S,D and E"],
+        reply: [
+          {
+            question: "ISIC",
+            answer: "ISIC"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      ISICD: {
+        says: ["International Standard Industrial Classification of All Economic Activities(ISIC) consists of a coherenr and consistent classification structure of economic activities based on a set of internationally agreed concepts,definitions,principles and classification rules.It provides a comprehensive framework within which economic data can be collected and reported in a format that is designed for purposes of economic analysis,decision-taking and policy-making.the classification structure represents a standard format to organize detailed information about the state of an economy according to economic principles and perceptions."],
+        reply: [
+          {
+            question: "UNSPC",
+            answer: "UNSPC"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      UNSPCD: {
+        says: ["The United NAtions standard Products and Services Code(UNSPC)is a global reference taxanomy or classification framework for all products and services for use in eCommerce.It is a four-level hierarchy coded as an eight-digit number,with an optional fifth level adding two more digits.The UNSPC competes with a number of other product and commodity coding schemes,inclusing the European Union's Common Procurement Vocabulary,Germany's eCl@ss,and GS1,s Global Product Classification."],
+        reply: [
+          {
+            question: "HSN",
+            answer: "HSN"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      HSND: {
+        says: ["HSN  is Harmonized System of Nomenclature.It is a nultipurpose international product nomenclature developed by the World Customs Organization(WCO).It comprises about 5,000  commodity groups;each identifies by a six digit code,arranged in a legal and logical structure and is supported by well-defined rules o achieve uniform classification.The system is used by more than 200 countries and economies as abasis of their Custtoms tariffs and for the collection of international trade statistics.It is also extensively used by governments,international organizations and the private sector for many other purposes such as internal taxes,trade policies,monitoring of controlled goods,rules of origin etc."],
+        reply: [
+          {
+            question: "SAC",
+            answer: "SAC"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      SACD: {
+        says: ["Pilog objecive is to have a global repository so that no item requires manual cataloguing.Pilog has developed PRP,A repository/central location in which data is stored and managed.It has embedded industry-standard content and ISO complaint process(Data exchange complaint to ISO 29002).Pilog has spent over twnety years in researching,developing and refining the PRP(Pilog Preferred Records).For those wanting to start with structured descriptions now without waiting for historical data clean up,we offer the Structured Text Generator to built class driven descriptions that improve search capability and eliminate free-text spending."],
+        reply: [
+          {
+            question: "ABC",
+            answer: "ABC"
+          },
+          {
+            question: "Go Back",
+            answer: "OK"
+          }
+        ]
+      },
+      Other : {
+        says: ["Hello Dev"],
+        reply: [
+          {
+            question: "Start Over",
+            answer: "Other"
+          }
+        ]
+      }
+    }
+
+    // pass JSON to your function and you're done!
+    
+
+    var convCalled = false;
+    function chatApplication() {
+      console.log("clicked");
+      if (!convCalled){
+        chatWindow.talk(convo);
+      }
+       convCalled = true;
+      
+      $('.chatBox').toggle({
+        height: 'toggle'
+      }, 400), function () {
+       
+      }
+    }
+
+
+  </script>
+</body>
